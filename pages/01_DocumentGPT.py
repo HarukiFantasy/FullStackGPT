@@ -10,9 +10,12 @@ from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.memory import ConversationBufferMemory
 
-
 st.set_page_config(page_title="DocumentGPT", page_icon="📑")
 st.title("DocumentGPT")
+
+# ✅ "messages" 세션 상태 초기화 (없다면 빈 리스트로 설정)
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
 
 with st.sidebar:
     file = st.file_uploader("Upload a .txt, .pdf, or .docx file", type=["pdf", "txt", "docx"])
@@ -53,21 +56,42 @@ llm = ChatOpenAI(
 
 @st.cache_resource(show_spinner="Embedding file...") 
 def embed_file(file, openai_api_key):
-    file_content = file.read()
-    file_path = f"./.cache/files/{file.name}"
-    
-    with open(file_path, "wb") as f:
-        f.write(file_content)
+    import os
 
-    cache_dir = LocalFileStore(f"./.cache/embeddings/{file.name}")
+    # 파일 저장 디렉터리 생성
+    cache_dir = "./.cache/files/"
+    os.makedirs(cache_dir, exist_ok=True)  
+
+    # 파일 저장 경로 설정
+    file_path = os.path.join(cache_dir, file.name)
+
+    # 파일 저장
+    with open(file_path, "wb") as f:
+        f.write(file.read())
+
+    # 파일이 제대로 저장되었는지 확인
+    if not os.path.exists(file_path):
+        st.error(f"❌ 파일 저장에 실패했습니다: {file_path}")
+        st.stop()
+    
+    st.success(f"✅ 파일이 성공적으로 저장됨: {file_path}")
+
+    # Embedding 캐시 디렉터리 설정
+    embedding_cache_dir = f"./.cache/embeddings/{file.name}"
+    os.makedirs(embedding_cache_dir, exist_ok=True)  
+
+    # 문서 분할 및 로딩
     splitter = CharacterTextSplitter.from_tiktoken_encoder(
         separator="\n", 
         chunk_size=600,
         chunk_overlap=100
     )      
     docs = UnstructuredFileLoader(file_path).load_and_split(text_splitter=splitter)
+
+    # 임베딩 저장
     embeddings = CacheBackedEmbeddings.from_bytes_store(
-        OpenAIEmbeddings(openai_api_key=openai_api_key), cache_dir
+        OpenAIEmbeddings(openai_api_key=openai_api_key), 
+        LocalFileStore(embedding_cache_dir)
     )
     return FAISS.from_documents(docs, embeddings).as_retriever()
 
@@ -75,6 +99,10 @@ def load_memory(_):
     return memory.load_memory_variables({}).get("chat_history", [])
 
 def save_message(message, role):
+    # ✅ messages가 없을 경우 초기화 (안전장치)
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = []
+
     st.session_state["messages"].append({"message": message, "role": role})
 
 def send_message(message, role, save=True):
@@ -112,6 +140,7 @@ if file:
 
     send_message("I'm ready! Ask away!", "ai", save=False)
     paint_history()
+    
     message = st.chat_input("Ask anything about your file...")
 
     if message:
@@ -130,5 +159,3 @@ if file:
             inputs={"input": message}, 
             outputs={"output": response.content}
         )
-    else:
-        st.session_state["messages"] = []
