@@ -13,13 +13,15 @@ from langchain.memory import ConversationBufferMemory
 st.set_page_config(page_title="DocumentGPT", page_icon="📑")
 st.title("DocumentGPT")
 
-# ✅ "messages" 세션 상태 초기화 (없다면 빈 리스트로 설정)
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
 with st.sidebar:
     file = st.file_uploader("Upload a .txt, .pdf, or .docx file", type=["pdf", "txt", "docx"])
     openai_api_key = st.text_input("🔑 OpenAI API 키를 입력하세요:", type="password")
+
+if not openai_api_key:
+    st.info("API key has not been provided.")
 
 if openai_api_key:
     st.session_state["openai_api_key"] = openai_api_key
@@ -30,7 +32,7 @@ if "memory" not in st.session_state:
         return_messages=True
     )
 
-memory = st.session_state["memory"]  # Use session state memory
+memory = st.session_state["memory"]  
 
 class ChatCallbackHander(BaseCallbackHandler):
     def __init__(self):
@@ -56,42 +58,21 @@ llm = ChatOpenAI(
 
 @st.cache_resource(show_spinner="Embedding file...") 
 def embed_file(file, openai_api_key):
-    import os
-
-    # 파일 저장 디렉터리 생성
-    cache_dir = "./.cache/files/"
-    os.makedirs(cache_dir, exist_ok=True)  
-
-    # 파일 저장 경로 설정
-    file_path = os.path.join(cache_dir, file.name)
-
-    # 파일 저장
-    with open(file_path, "wb") as f:
-        f.write(file.read())
-
-    # 파일이 제대로 저장되었는지 확인
-    if not os.path.exists(file_path):
-        st.error(f"❌ 파일 저장에 실패했습니다: {file_path}")
-        st.stop()
+    file_content = file.read()
+    file_path = f"./.cache/files/{file.name}"
     
-    st.success(f"✅ 파일이 성공적으로 저장됨: {file_path}")
+    with open(file_path, "wb") as f:
+        f.write(file_content)
 
-    # Embedding 캐시 디렉터리 설정
-    embedding_cache_dir = f"./.cache/embeddings/{file.name}"
-    os.makedirs(embedding_cache_dir, exist_ok=True)  
-
-    # 문서 분할 및 로딩
+    cache_dir = LocalFileStore(f"./.cache/embeddings/{file.name}")
     splitter = CharacterTextSplitter.from_tiktoken_encoder(
         separator="\n", 
         chunk_size=600,
         chunk_overlap=100
     )      
     docs = UnstructuredFileLoader(file_path).load_and_split(text_splitter=splitter)
-
-    # 임베딩 저장
     embeddings = CacheBackedEmbeddings.from_bytes_store(
-        OpenAIEmbeddings(openai_api_key=openai_api_key), 
-        LocalFileStore(embedding_cache_dir)
+        OpenAIEmbeddings(openai_api_key=openai_api_key), cache_dir
     )
     return FAISS.from_documents(docs, embeddings).as_retriever()
 
@@ -99,7 +80,6 @@ def load_memory(_):
     return memory.load_memory_variables({}).get("chat_history", [])
 
 def save_message(message, role):
-    # ✅ messages가 없을 경우 초기화 (안전장치)
     if "messages" not in st.session_state:
         st.session_state["messages"] = []
 
@@ -126,7 +106,7 @@ prompt = ChatPromptTemplate.from_messages([
     -------
     Context: {context}
     """),
-    MessagesPlaceholder(variable_name="chat_history"),  # ✅ Ensure chat history is included
+    MessagesPlaceholder(variable_name="chat_history"),  
     ("human", "{question}")
 ])
 
