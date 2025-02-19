@@ -20,9 +20,6 @@ with st.sidebar:
 
 if openai_api_key:
     st.session_state["openai_api_key"] = openai_api_key
-else:
-    st.warning("⚠️ API 키를 입력해야 합니다!")
-    st.stop()
 
 if "memory" not in st.session_state:
     st.session_state["memory"] = ConversationBufferMemory(
@@ -50,7 +47,7 @@ class ChatCallbackHander(BaseCallbackHandler):
 llm = ChatOpenAI(
     temperature=0.1,
     streaming=True,
-    openai_api_key=st.session_state.get("openai_api_key", ""),
+    openai_api_key=openai_api_key,
     callbacks=[ChatCallbackHander()]
 )
 
