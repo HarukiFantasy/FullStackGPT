@@ -1,6 +1,4 @@
-import os
 import streamlit as st
-from dotenv import load_dotenv
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
@@ -11,6 +9,7 @@ from langchain.storage import LocalFileStore
 from langchain_community.chat_models import ChatOpenAI
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.memory import ConversationBufferMemory
+
 
 st.set_page_config(page_title="DocumentGPT", page_icon="📑")
 st.title("DocumentGPT")
