@@ -22,6 +22,7 @@ with st.sidebar:
 
 if not openai_api_key:
     st.info("API key has not been provided.")
+    st.stop()
 
 if openai_api_key:
     st.session_state["openai_api_key"] = openai_api_key
