@@ -20,6 +20,9 @@ with st.sidebar:
 
 if openai_api_key:
     st.session_state["openai_api_key"] = openai_api_key
+else:
+    st.warning("⚠️ API 키를 입력해야 합니다!")
+    st.stop()
 
 if "memory" not in st.session_state:
     st.session_state["memory"] = ConversationBufferMemory(
