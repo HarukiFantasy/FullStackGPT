@@ -113,7 +113,7 @@ nest-asyncio==1.5.8
 networkx==3.1
 nltk==3.8.1
 numexpr==2.8.5
-numpy>=1.26.0,<=1.26.4
+numpy==1.23.5
 olefile==0.46
 omegaconf==2.3.0
 openai==0.28.0
@@ -122,7 +122,7 @@ openpyxl==3.1.2
 orjson==3.9.9
 overrides==7.4.0
 packaging==23.1
-pandas==2.1.0
+pandas==2.0.3
 parso==0.8.3
 pathspec==0.11.2
 pathy==0.10.2
