@@ -6,7 +6,7 @@ from langchain.embeddings import OpenAIEmbeddings, CacheBackedEmbeddings
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.vectorstores import FAISS
 from langchain.storage import LocalFileStore
-from langchain_community.chat_models import ChatOpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.memory import ConversationBufferMemory
 
