@@ -50,7 +50,7 @@ class ChatCallbackHander(BaseCallbackHandler):
 llm = ChatOpenAI(
     temperature=0.1,
     streaming=True,
-    openai_api_key=openai_api_key,
+    openai_api_key=st.session_state.get("openai_api_key", ""),
     callbacks=[ChatCallbackHander()]
 )
 
