@@ -112,7 +112,6 @@ if file:
 
     send_message("I'm ready! Ask away!", "ai", save=False)
     paint_history()
-    
     message = st.chat_input("Ask anything about your file...")
 
     if message:
@@ -131,5 +130,5 @@ if file:
             inputs={"input": message}, 
             outputs={"output": response.content}
         )
-else:
-    st.session_state["messages"] = []
+    else:
+        st.session_state["messages"] = []
