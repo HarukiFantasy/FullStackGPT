@@ -45,7 +45,7 @@ function = {
                             },
                             "difficulty": {  
                                 "type": "string",
-                                "enum": ["easy", "hard"], 
+                                "enum": ["Easy", "Hard"], 
                                 "description": "Difficulty level of the question."
                             },
                         },
@@ -80,7 +80,7 @@ with st.sidebar:
             docs = wiki_search(topic)
     difficulty = st.selectbox(
         "Select Difficulty Level",
-        ("easy", "hard"),
+        ("Easy", "Hard"),
         index=None
     )
     openai_api_key = st.text_input("🔑 OpenAI API 키를 입력하세요:", type="password")
@@ -122,14 +122,14 @@ questions_prompt = ChatPromptTemplate.from_messages(
     Format:
     - One correct answer per question.
     - Use the function `create_quiz` to return the questions.
-    - Each question should have a difficulty level: "easy" or "hard"
+    - Each question should have a difficulty level: "Easy" or "Hard"
     - Show the question with the level user choose. 
-        - If user choose the level "hard"; then show the questions with level "hard" only.
-        - If user choose the level "easy"; then show the questions with level "esay" only.
+        - If user choose the level "Hard"; then show the questions with level "Hard" only.
+        - If user choose the level "Easy"; then show the questions with level "esay" only.
 
     **Ensure that the question itself changes depending on the difficulty level:**
-    - **easy:** Focus on factual recall, definitions, or simple concepts about novel and author
-    - **hard:** Ask about details of story.
+    - **Easy:** Focus on factual recall, definitions, or simple concepts about novel and author
+    - **Hard:** Ask about details of story.
     
     Context: {context}
     Difficulty Level: {difficulty}
