@@ -45,7 +45,7 @@ function = {
                             },
                             "difficulty": {  
                                 "type": "string",
-                                "enum": ["Easy", "Hard"], 
+                                "enum": ["easy", "hard"], 
                                 "description": "Difficulty level of the question."
                             },
                         },
@@ -86,14 +86,14 @@ questions_prompt = ChatPromptTemplate.from_messages(
     Format:
     - One correct answer per question.
     - Use the function `create_quiz` to return the questions.
-    - Each question should have a difficulty level: "Easy" or "Hard"
+    - Each question should have a difficulty level: "easy" or "hard"
     - Show the question with the level user choose. 
-        - If user choose the level "Hard"; then show the questions with level "Hard" only.
-        - If user choose the level "Easy"; then show the questions with level "Esay" only.
+        - If user choose the level "hard"; then show the questions with level "hard" only.
+        - If user choose the level "easy"; then show the questions with level "esay" only.
 
     **Ensure that the question itself changes depending on the difficulty level:**
-    - **Easy:** Focus on factual recall, definitions, or simple concepts about novel and author
-    - **Hard:** Ask about details of story.
+    - **easy:** Focus on factual recall, definitions, or simple concepts about novel and author
+    - **hard:** Ask about details of story.
     
     Context: {context}
     Difficulty Level: {difficulty}
@@ -135,6 +135,8 @@ def run_quiz_chain(_docs, topic, difficulty):
         "context": format_docs(_docs),  
         "difficulty": difficulty  # 난이도를 별도 필드로 전달
     })
+
+    # st.write("LLM Raw Response:", response)
 
     # Function Calling이 실행되었는지 확인
     if response.additional_kwargs.get("function_call"):
