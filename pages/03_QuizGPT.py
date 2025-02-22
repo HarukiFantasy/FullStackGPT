@@ -60,17 +60,53 @@ function = {
 st.set_page_config(page_title="QuizGPT", page_icon="❓")
 st.title("QuizGPT")
 
+with st.sidebar:
+    docs = None
+    choice = st.selectbox(
+        "Choose the data you want to use.",
+        ("File", "Wikipedia Article"),
+        index=None
+    )
+    if choice == "File":
+        file = st.file_uploader(
+            "Upload a .docx , .txt or .pdf file",
+            type=["pdf", "txt", "docx"],
+        )
+        if file:
+            docs = split_file(file)
+    else:
+        topic = st.text_input("Search Wikipedia...", placeholder="What you want to learn?")
+        if topic:
+            docs = wiki_search(topic)
+    difficulty = st.selectbox(
+        "Select Difficulty Level",
+        ("easy", "hard"),
+        index=None
+    )
+    openai_api_key = st.text_input("🔑 OpenAI API 키를 입력하세요:", type="password")
+    st.markdown(
+        """
+        <a href="https://github.com/HarukiFantasy/FullStackGPT" target="_blank" style="color: gray; text-decoration: none;">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="20">
+            View on GitHub
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
+
 llm = ChatOpenAI(
     temperature=0.1,
     model="gpt-3.5-turbo-1106",
     streaming=True,
     callbacks=[StreamingStdOutCallbackHandler()],
+    openai_api_key=openai_api_key,
 ).bind(function_call={
     "name" :"create_quiz"
 },
 functions=[
     function
 ])
+
 
 def format_docs(docs):
     return "\n\n".join(document.page_content for document in docs)
@@ -149,40 +185,6 @@ def run_quiz_chain(_docs, topic, difficulty):
     # 만약 LLM이 함수를 실행하지 않았다면 오류 처리
     st.error("Function Calling failed. Please try again.")
     return {"questions": []}
-
-with st.sidebar:
-    docs = None
-    choice = st.selectbox(
-        "Choose the data you want to use.",
-        ("File", "Wikipedia Article"),
-        index=None
-    )
-    if choice == "File":
-        file = st.file_uploader(
-            "Upload a .docx , .txt or .pdf file",
-            type=["pdf", "txt", "docx"],
-        )
-        if file:
-            docs = split_file(file)
-    else:
-        topic = st.text_input("Search Wikipedia...", placeholder="What you want to learn?")
-        if topic:
-            docs = wiki_search(topic)
-    difficulty = st.selectbox(
-        "Select Difficulty Level",
-        ("easy", "hard"),
-        index=None
-    )
-    openai_api_key = st.text_input("🔑 OpenAI API 키를 입력하세요:", type="password")
-    st.markdown(
-        """
-        <a href="https://github.com/HarukiFantasy/FullStackGPT" target="_blank" style="color: gray; text-decoration: none;">
-            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="20">
-            View on GitHub
-        </a>
-        """,
-        unsafe_allow_html=True
-    )
 
 if not docs:
     st.markdown(
