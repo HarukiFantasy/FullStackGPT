@@ -45,7 +45,7 @@ function = {
                             },
                             "difficulty": {  
                                 "type": "string",
-                                "enum": ["easy", "hard"],  # 선택 가능한 난이도
+                                "enum": ["Easy", "Hard"], 
                                 "description": "Difficulty level of the question."
                             },
                         },
