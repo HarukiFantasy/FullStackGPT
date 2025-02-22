@@ -86,6 +86,7 @@ def wiki_search(term):
 
 topic=None
 with st.sidebar:
+    openai_api_key = st.text_input("🔑 OpenAI API 키를 입력하세요:", type="password")
     docs = None
     choice = st.selectbox(
         "Choose the data you want to use.",
@@ -108,7 +109,6 @@ with st.sidebar:
         ("Easy", "Hard"),
         index=None
     )
-    openai_api_key = st.text_input("🔑 OpenAI API 키를 입력하세요:", type="password")
 
     st.markdown(
         """
