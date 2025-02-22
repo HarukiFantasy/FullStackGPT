@@ -84,6 +84,7 @@ def wiki_search(term):
     docs = retriever.get_relevant_documents(term)
     return docs
 
+topic=None
 with st.sidebar:
     docs = None
     choice = st.selectbox(
@@ -108,6 +109,7 @@ with st.sidebar:
         index=None
     )
     openai_api_key = st.text_input("🔑 OpenAI API 키를 입력하세요:", type="password")
+
     st.markdown(
         """
         <a href="https://github.com/HarukiFantasy/FullStackGPT" target="_blank" style="color: gray; text-decoration: none;">
@@ -118,7 +120,10 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
-    
+if not openai_api_key:
+    st.warning("Please enter your OpenAI API key to continue.")
+    st.stop()
+
 llm = ChatOpenAI(
     temperature=0.1,
     model="gpt-3.5-turbo-1106",
